@@ -1,4 +1,3 @@
-// src/utils/generateAdminInvoice.js
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 
@@ -163,18 +162,17 @@ safeText(`Date: ${formatDate(order.date)}`, x1, cursorY);
 safeText(`Customer: ${d.name || "N/A"}`, x2, cursorY);
 safeText(`Phone: ${d.mobile || "N/A"}`, x3, cursorY);
 
-// move down for the address block
+
 cursorY += 20;
 
-// — DELIVERY DETAILS ROW 2 —
-// Address, city/state, pincode/type
+//  DELIVERY DETAILS ROW 2 
 safeText(`Address: ${d.address || ""} , ${d.city || ""}, ${d.state || ""}`, x1, cursorY);
 safeText(`Pincode: ${d.pinncode || ""} | ${d.type || ""}`, x1, cursorY + 15);
 
-// then bump cursorY past your address block
+
 cursorY += 50;
 
-    // — Products Table —
+    //  Products Table 
     const tableBody = order.products.map((p, i) => {
       const price = parseNumber(p.product?.Price);
       return [
