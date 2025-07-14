@@ -97,7 +97,7 @@ const AnalyticsDashboard = ({ dataLoading,
   const handleDateRangeChange = (e) => {
     const value = e.target.value;
     setDateRange(value);
-    // If the user selects "Last 7 days" or "Last 30 days", reset the year to the current year.
+   
     if (value === 'Last 7 days' || value === 'Last 30 days') {
       setSelectedYear(new Date().getFullYear());
     }

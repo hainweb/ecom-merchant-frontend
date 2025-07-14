@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import  { useState, useEffect } from "react";
 import Dashboard from "./AllAnaltics";
 import { Link } from "react-router-dom";
 import RevenueAnalytics from "./RevenueAnalytics";
@@ -67,8 +67,6 @@ function Main() {
   const [isSticky, setIsSticky] = useState(false);
   useEffect(() => {
     const handleScroll = () => {
-      // If you want to change the nav bar as soon as the user scrolls down,
-      // you can set isSticky to true if window.scrollY > 0
       setIsSticky(window.scrollY > 0);
     };
 

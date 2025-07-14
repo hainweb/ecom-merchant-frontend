@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import  { useState, useEffect } from 'react';
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 import { ShoppingBag, ShoppingBasket, CircleDashed, CircleCheckBig } from 'lucide-react';
@@ -35,7 +35,7 @@ const AnalyticsDashboard = ({ dataLoading, totalInStock, totalLowStock, totalOut
 
   console.log('total in stock', totalInStock);
   console.log('categiry sta', categoryStatus);
-  // Sample analytics data
+ 
   const salesMetrics = { 
     totalOrders,
     totalOrderedProducts,
@@ -132,9 +132,7 @@ const AnalyticsDashboard = ({ dataLoading, totalInStock, totalLowStock, totalOut
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navigation */}
-
-
+    
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 py-6">
         {/* Key Metrics */}
