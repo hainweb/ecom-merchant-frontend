@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   AlertCircle,
   Package,
@@ -56,9 +56,7 @@ const OrdersTable = () => {
         });
         const data = response.data;
 
-        // Sort orders by date (latest first) by replacing " at" from the string.
         data.sort((a, b) => {
-          // Replace " at" with an empty string so that the Date constructor can parse it.
           const dateA = new Date(a.date.replace(" at", ""));
           const dateB = new Date(b.date.replace(" at", ""));
           return dateB - dateA;
