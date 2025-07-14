@@ -40,7 +40,6 @@ function App() {
     fetchAdmin();
   }, []);
 
-  // Admin routes with fallback to Login
   const ProtectedRoute = ({ children }) => {
     return admin ? children : <AdminIntro/>;
   };
