@@ -93,7 +93,7 @@ function Main() {
                   className="flex-shrink-0 flex items-center space-x-1 rtl:space-x-reverse"
                 >
                   <span className="self-center text-2xl font-semibold whitespace-nowrap text-black">
-                    Admin Panel
+                    Merchant Panel
                   </span>
                 </Link>
               )}
