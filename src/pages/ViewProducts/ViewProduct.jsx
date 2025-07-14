@@ -6,7 +6,6 @@ import { BASE_URL, IMG_URL } from '../Urls/Urls';
 const ViewProducts = () => {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
-  const [refreshKey, setRefreshKey] = useState(Date.now());
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOption, setSortOption] = useState("none");
@@ -29,7 +28,6 @@ const ViewProducts = () => {
       setProducts(sortedProducts);
       setFilteredProducts(sortedProducts);
       setError(null);
-      setRefreshKey(Date.now());
     } catch (err) {
       console.error('Error fetching products:', err);
       setError('Failed to load products. Please try again later.');
