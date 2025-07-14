@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import axios from 'axios';
-import { BASE_URL, IMG_URL } from '../Urls/Urls';
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import axios from "axios";
+import { BASE_URL } from "../Urls/Urls";
 
 const ViewProducts = () => {
   const [products, setProducts] = useState([]);
@@ -10,42 +10,41 @@ const ViewProducts = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOption, setSortOption] = useState("none");
   const [loading, setLoading] = useState(true);
-  const [deleteProId, setDeleteProId]=useState("")
+  const [deleteProId, setDeleteProId] = useState("");
 
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${BASE_URL}/admin-products`, { 
-        withCredentials: true 
+      const response = await axios.get(`${BASE_URL}/admin-products`, {
+        withCredentials: true,
       });
 
-       console.log(response);
-        
-      
+      console.log(response);
+
       let sortedProducts = [...response.data.products];
       applySorting(sortedProducts);
-      
+
       setProducts(sortedProducts);
       setFilteredProducts(sortedProducts);
       setError(null);
     } catch (err) {
-      console.error('Error fetching products:', err);
-      setError('Failed to load products. Please try again later.');
+      console.error("Error fetching products:", err);
+      setError("Failed to load products. Please try again later.");
     } finally {
       setLoading(false);
     }
   };
 
   const applySorting = (productsArray) => {
-    switch(sortOption) {
+    switch (sortOption) {
       case "none":
-        productsArray.sort((a, b) => 
-          new Date(b.createdAt) - new Date(a.createdAt)
-        ).reverse();
+        productsArray
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+          .reverse();
         break;
       case "latest":
-        productsArray.sort((a, b) => 
-          new Date(b.createdAt) - new Date(a.createdAt)
+        productsArray.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         );
         break;
       case "highToLow":
@@ -68,11 +67,12 @@ const ViewProducts = () => {
   const handleSearch = (event) => {
     const query = event.target.value.toLowerCase();
     setSearchQuery(query);
-    
-    const filtered = products.filter((product) =>
-      product.Name.toLowerCase().includes(query) ||
-      product.Category.toLowerCase().includes(query) ||
-      product.Description.toLowerCase().includes(query)
+
+    const filtered = products.filter(
+      (product) =>
+        product.Name.toLowerCase().includes(query) ||
+        product.Category.toLowerCase().includes(query) ||
+        product.Description.toLowerCase().includes(query)
     );
     setFilteredProducts(filtered);
   };
@@ -90,42 +90,68 @@ const ViewProducts = () => {
     }
 
     try {
-      setDeleteProId(productId)
-      const response = await axios.post(`${BASE_URL}/delete-item/${productId}`,null,{withCredentials:true});
+      setDeleteProId(productId);
+      const response = await axios.post(
+        `${BASE_URL}/delete-item/${productId}`,
+        null,
+        { withCredentials: true }
+      );
       if (response.data.status) {
-       
-        alert('Product deleted successfully');
+        alert("Product deleted successfully");
         fetchProducts();
       }
-      setDeleteProId("")
+      setDeleteProId("");
     } catch (err) {
-      console.error('Error deleting product:', err);
-      alert('Failed to delete product. Please try again.');
+      console.error("Error deleting product:", err);
+      alert("Failed to delete product. Please try again.");
     }
   };
 
   const getQuantityBadge = (quantity) => {
     const baseClasses = "px-2.5 py-0.5 rounded-full text-sm font-medium";
     if (quantity < 1) {
-      return <span className={`${baseClasses} bg-red-50 text-red-700 border border-red-200`}>Out of Stock</span>;
+      return (
+        <span
+          className={`${baseClasses} bg-red-50 text-red-700 border border-red-200`}
+        >
+          Out of Stock
+        </span>
+      );
     } else if (quantity < 2) {
-      return <span className={`${baseClasses} bg-red-50 text-red-700 border border-red-200`}>Last Item!</span>;
-    } else if (quantity <=10) {
-      return <span className={`${baseClasses} bg-amber-50 text-amber-700 border border-amber-200`}>Low Stock: {quantity}</span>;
+      return (
+        <span
+          className={`${baseClasses} bg-red-50 text-red-700 border border-red-200`}
+        >
+          Last Item!
+        </span>
+      );
+    } else if (quantity <= 10) {
+      return (
+        <span
+          className={`${baseClasses} bg-amber-50 text-amber-700 border border-amber-200`}
+        >
+          Low Stock: {quantity}
+        </span>
+      );
     }
-    return <span className={`${baseClasses} bg-green-50 text-green-700 border border-green-200`}>In Stock: {quantity}</span>;
+    return (
+      <span
+        className={`${baseClasses} bg-green-50 text-green-700 border border-green-200`}
+      >
+        In Stock: {quantity}
+      </span>
+    );
   };
 
   const formatPrice = (price) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR'
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
     }).format(price);
   };
 
   useEffect(() => {
     fetchProducts();
-    
   }, [sortOption]);
 
   const LoadingSkeleton = () => (
@@ -150,10 +176,12 @@ const ViewProducts = () => {
             </div>
           </div>
         )}
-        
+
         <div className="mb-8 flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-semibold text-gray-900">Your Product Inventory</h1>
+            <h1 className="text-2xl font-semibold text-gray-900">
+              Your Product Inventory
+            </h1>
             <p className="mt-1 text-sm text-gray-500">
               {filteredProducts.length} products found
             </p>
@@ -169,7 +197,9 @@ const ViewProducts = () => {
 
         <div className="mb-6 flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
           <div className="relative">
-            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">🔍</span>
+            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+              🔍
+            </span>
             <input
               type="text"
               value={searchQuery}
@@ -178,9 +208,11 @@ const ViewProducts = () => {
               className="pl-10 pr-4 py-2 w-full sm:w-80 border border-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
             />
           </div>
-          
+
           <div className="relative cursor-pointer">
-            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">↕️</span>
+            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+              ↕️
+            </span>
             <select
               value={sortOption}
               onChange={handleSortChange}
@@ -206,13 +238,27 @@ const ViewProducts = () => {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50 sticky top-0 z-10">
                   <tr>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Orders</th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      No
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Product
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Price
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Category
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Stock
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Orders
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -221,31 +267,43 @@ const ViewProducts = () => {
                       <td colSpan="7" className="px-6 py-12">
                         <div className="flex flex-col items-center justify-center text-gray-500">
                           <span className="text-4xl mb-4">📦</span>
-                          <p className="text-lg font-medium">No products found</p>
-                          <p className="text-sm">Try adjusting your search or filters</p>
+                          <p className="text-lg font-medium">
+                            No products found
+                          </p>
+                          <p className="text-sm">
+                            Try adjusting your search or filters
+                          </p>
                         </div>
                       </td>
                     </tr>
                   ) : (
                     filteredProducts.map((product, index) => (
-                      <tr key={product._id} className="hover:bg-gray-50 transition-colors duration-200">
+                      <tr
+                        key={product._id}
+                        className="hover:bg-gray-50 transition-colors duration-200"
+                      >
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {index + 1}
                         </td>
                         <Link to={`/product/${product._id}`} key={product._id}>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <img
-                              className="h-12 w-12 rounded-lg object-cover"
-                              src={product.thumbnailImage}
-                              alt={product.Name}
-                            />
-                            <div className="ml-4">
-                              <p className="text-sm font-medium text-gray-900 truncate max-w-xs">{product.Name}</p>
-                              <p className="text-sm text-gray-500 truncate max-w-xs">{product.Description}</p>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <img
+                                className="h-12 w-12 rounded-lg object-cover"
+                                src={product.thumbnailImage}
+                                alt={product.Name}
+                              />
+                              <div className="ml-4">
+                                <p className="text-sm font-medium text-gray-900 truncate max-w-xs">
+                                  {product.Name}
+                                </p>
+                                <p className="text-sm text-gray-500 truncate max-w-xs">
+                                  {product.Description}
+                                </p>
+                              </div>
                             </div>
-                          </div>
-                        </td></Link>
+                          </td>
+                        </Link>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className="text-sm font-medium text-gray-900">
                             {formatPrice(product.Price)}
@@ -269,18 +327,18 @@ const ViewProducts = () => {
                           >
                             Edit
                           </Link>
-                          
+
                           <button
-                            onClick={() => handleDelete(product._id, product.Name)}
+                            onClick={() =>
+                              handleDelete(product._id, product.Name)
+                            }
                             className="inline-flex items-center px-3 py-1.5 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors duration-200"
                           >
                             {deleteProId === product._id ? (
-  <div className="w-4 h-4 border-2 border-red-700 rounded-full animate-spin border-t-transparent"></div>
-                  
-) : (
-  "Delete"
-)}
-
+                              <div className="w-4 h-4 border-2 border-red-700 rounded-full animate-spin border-t-transparent"></div>
+                            ) : (
+                              "Delete"
+                            )}
                           </button>
                         </td>
                       </tr>
