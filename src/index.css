@@ -1,0 +1,32 @@
+/* src/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+  
+.cart{
+    background-color: rgb(255, 0, 0);
+}
+
+.gradient-border {
+    background: linear-gradient(
+      45deg,
+      #ff0000,  /* Red */
+      #ff7f00,  /* Orange */
+      #0000ff,  /* Blue */
+      #4b0082,  /* Indigo */
+      #8f00ff,  /* Violet */
+      #ff0000   /* Loop back to red */
+    );
+    background-size: 400%;
+    animation: gradientAnimation 10s linear infinite;
+  }
+  
+  @keyframes gradientAnimation {
+    0% {
+      background-position: 0% 50%;
+    }
+    100% {
+      background-position: 400% 50%;
+    }
+  }
+  
