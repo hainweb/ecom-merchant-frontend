@@ -104,11 +104,6 @@ const AddProduct = () => {
         }
     };
 
-    // Remove thumbnail
-    const removeThumbnail = () => {
-        setThumbnail(null);
-        setThumbnailPreview(null);
-    };
 
     // Handle additional images change and validation
     const handleImagesChange = (e) => {
