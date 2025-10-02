@@ -32,13 +32,14 @@ function App() {
   useEffect(() => {
     const fetchAdmin = async () => {
       try {
-        /*  axios.post(
+         axios.post(
           "https://hain-analytics-backend.onrender.com/api/analytics/log",
           { platform: "merchant" }
-        ); */
+        );
         const response = await axios.get(`${BASE_URL}/get-admin`, {
           withCredentials: true,
         });
+        
         if (response.data.status && response.data.isApproved) {
           setApproved(true);
           setAdmin(response.data.admin);
