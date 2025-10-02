@@ -83,7 +83,10 @@ const IntroPopup = ({ onClose, setAdmin }) => {
           icon: <IndianRupee className="w-5 h-5" />,
           text: "See your total revenue and earnings at a glance",
         },
-      
+        {
+          icon: <BarChart2 className="w-5 h-5" />,
+          text: "Get the full analytics for products, orders and revenue",
+        },
         {
           icon: <TrendingUp className="w-5 h-5" />,
           text: "Monitor stock levels to never run out",
