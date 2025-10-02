@@ -41,7 +41,10 @@ const IntroPopup = ({ onClose, setAdmin }) => {
           icon: <Eye className="w-5 h-5" />,
           text: "Edit product details anytime you want",
         },
-        
+        {
+          icon: <TrendingUp className="w-5 h-5" />,
+          text: "Track how much stock you have left",
+        },
         {
           icon: <Image className="w-5 h-5" />,
           text: "Upload product images and thumbnail image separately",
