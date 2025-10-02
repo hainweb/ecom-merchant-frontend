@@ -149,11 +149,18 @@ const Login = ({ setAdmin }) => {
               placeholder="Password"
             />
           </div>
-          <Link to="/forgot-password">
-            <p className="text-blue-500 text-sm hover:text-blue-600 mt-2">
-              Forgot password?
-            </p>
-          </Link>
+          <div className="flex justify-between">
+            <Link to="/forgot-password">
+              <p className="text-blue-500 text-sm hover:text-blue-600 mt-2">
+                Forgot password?
+              </p>
+            </Link>
+            <Link to="/signup">
+              <p className="text-blue-500 text-sm hover:text-blue-600 mt-2">
+                Create new account
+              </p>
+            </Link>
+          </div>
           {loginErr && <p className="text-red-500 text-sm">{loginErr}</p>}
 
           <button
