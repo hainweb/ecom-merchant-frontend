@@ -90,12 +90,16 @@ const Signup = () => {
     setErr("");
     try {
       setLoading(true);
-      const res = await axios.post(`${BASE_URL}/verify-merchant`, {
-        email: formData.Email,
-        mobile: formData.Mobile,
-        otp,
-        data: formData,
-      });
+      const res = await axios.post(
+        `${BASE_URL}/verify-merchant`,
+        {
+          email: formData.Email,
+          mobile: formData.Mobile,
+          otp,
+          data: formData,
+        },
+        { withCredentials: true }
+      );
       if (res.data.status) {
         navigate("/application");
         setStep(4);
