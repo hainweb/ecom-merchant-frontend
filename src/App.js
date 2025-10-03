@@ -178,7 +178,7 @@ function App() {
               }
             />
 
-            <Route path="/signup" element={<Signup />} />
+            <Route path="/signup" element={<Signup setApproved={setApproved}/>} />
 
             <Route path="/forgot-password" element={<ForgotPassword />} />
 
