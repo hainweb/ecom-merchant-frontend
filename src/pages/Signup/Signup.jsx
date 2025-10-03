@@ -3,7 +3,7 @@ import axios from "axios";
 import { BASE_URL } from "../Urls/Urls";
 import { Link, useNavigate } from "react-router-dom";
 
-const Signup = ({setApproved}) => {
+const Signup = ({ setApproved }) => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -61,6 +61,10 @@ const Signup = ({setApproved}) => {
       setErr("Please fill all required fields");
       return;
     }
+    if (formData.Mobile.length !== 10) {
+      setErr("Invalid Mobile Number");
+      return;
+    }
     if (formData.Password !== formData.ConfirmPassword) {
       setErr("Passwords do not match");
       return;
@@ -100,10 +104,9 @@ const Signup = ({setApproved}) => {
         },
         { withCredentials: true }
       );
-      
-      
+
       if (res.data.status) {
-        setApproved(false)
+        setApproved(false);
         navigate("/application");
         setStep(4);
       } else setErr(res.data.message || "Invalid OTP");
