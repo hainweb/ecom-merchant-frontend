@@ -3,7 +3,7 @@ import axios from "axios";
 import { BASE_URL } from "../Urls/Urls";
 import { Link, useNavigate } from "react-router-dom";
 
-const Signup = () => {
+const Signup = ({setApproved}) => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -100,7 +100,10 @@ const Signup = () => {
         },
         { withCredentials: true }
       );
+      
+      
       if (res.data.status) {
+        setApproved(false)
         navigate("/application");
         setStep(4);
       } else setErr(res.data.message || "Invalid OTP");
