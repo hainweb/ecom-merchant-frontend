@@ -56,8 +56,6 @@ const AnalyticsDashboard = ({
     fetchCategoryProducts();
   }, []);
 
-  console.log("total in stock", totalInStock);
-  console.log("categiry sta", categoryStatus);
 
   const salesMetrics = {
     totalOrders,
@@ -99,17 +97,17 @@ const AnalyticsDashboard = ({
     { name: "Returned Products", value: userMetrics.return, color: "#8B5CF6" },
   ];
 
-  const categoryData = categoryStatus.map((cat) => ({
+  const categoryData = (categoryStatus || []).map((cat) => ({
     name: cat.category,
     revenue: cat.deliveredRevenue,
   }));
 
-  const categoryOrder = categoryStatus.map((cat) => ({
+  const categoryOrder = (categoryStatus || []).map((cat) => ({
     name: cat.category,
     orders: cat.totalOrderedProducts,
   }));
 
-  const categoryProductsData = categoryProducts.map((cat) => ({
+  const categoryProductsData = (categoryProducts || []).map((cat) => ({
     name: cat.name,
     products: cat.value,
     quantity: cat.quantity,
@@ -193,7 +191,7 @@ const AnalyticsDashboard = ({
                   <ShoppingBag className="text-blue-500" size={20} />
                 </div>
                 <p className="text-2xl font-bold">
-                  {salesMetrics.totalOrders.toLocaleString()}
+                  {(salesMetrics?.totalOrders||0).toLocaleString()}
                 </p>
                 <span className="text-green-500 text-sm">
                   ↑ 12.5% vs last period
@@ -207,7 +205,7 @@ const AnalyticsDashboard = ({
                   <ShoppingBasket className="text-blue-500" size={20} />
                 </div>
                 <p className="text-2xl font-bold">
-                  {salesMetrics.totalOrderedProducts.toLocaleString()}
+                  {(salesMetrics?.totalOrderedProducts||0).toLocaleString()}
                 </p>
                 <span className="text-green-500 text-sm">
                   ↑ 8.2% vs last period
@@ -219,7 +217,7 @@ const AnalyticsDashboard = ({
                   <CircleCheckBig className="text-blue-500" size={20} />
                 </div>
                 <p className="text-2xl font-bold">
-                  {salesMetrics.deliveredOrders.toLocaleString()}
+                  {(salesMetrics?.deliveredOrders||0).toLocaleString()}
                 </p>
                 <span className="text-green-500 text-sm">
                   ↑ 13.3% vs last period
@@ -231,7 +229,7 @@ const AnalyticsDashboard = ({
                   <CircleDashed className="text-blue-500" size={20} />
                 </div>
                 <p className="text-2xl font-bold">
-                  {salesMetrics.pendingOrders}
+                  {salesMetrics?.pendingOrders || 0}
                 </p>
                 <span className="text-red-500 text-sm">
                   ↓ 2.1% vs last period
@@ -259,7 +257,7 @@ const AnalyticsDashboard = ({
                     paddingAngle={5}
                     dataKey="value"
                   >
-                    {productStatusData.map((entry, index) => (
+                    {productStatusData?.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
@@ -284,7 +282,7 @@ const AnalyticsDashboard = ({
                     paddingAngle={5}
                     dataKey="value"
                   >
-                    {userTypeData.map((entry, index) => (
+                    {userTypeData?.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
@@ -304,25 +302,25 @@ const AnalyticsDashboard = ({
               <div className="flex justify-between items-center">
                 <span>Total products ordered</span>
                 <span className="font-semibold">
-                  {salesMetrics.totalOrderedProducts.toLocaleString()}
+                  {(salesMetrics?.totalOrderedProducts||0).toLocaleString() }
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span>In stock count</span>
                 <span className="font-semibold">
-                  {productMetrics.totalInStock.toLocaleString()}
+                  {(productMetrics?.totalInStock||0).toLocaleString()}
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span>Low stock count</span>
                 <span className="font-semibold">
-                  {productMetrics.lowStock.toLocaleString()}
+                  {(productMetrics?.lowStock||0).toLocaleString()}
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span>Out of stock count</span>
                 <span className="font-semibold text-red-500">
-                  {productMetrics.outOfStock.toLocaleString()}
+                  {(productMetrics?.outOfStock||0).toLocaleString()}
                 </span>
               </div>
             </div>
@@ -334,30 +332,30 @@ const AnalyticsDashboard = ({
               <div className="flex justify-between items-center">
                 <span>Total orders </span>
                 <span className="font-semibold">
-                  {salesMetrics.deliveredOrders}
+                  {salesMetrics.deliveredOrders||0}
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span>Reruned products </span>
-                <span className="font-semibold">{returnedProducts}</span>
+                <span className="font-semibold">{returnedProducts||0}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span>Order cash sended to admin </span>
                 <span className="font-semibold">
-                  {salesMetrics.cashToAdminOrders}
+                  {salesMetrics.cashToAdminOrders||0}
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span>Pending cash to admin </span>
                 <span className="font-semibold text-red-500">
-                  {salesMetrics.pendingCashToAdmin} Orders, ₹
-                  {salesMetrics.pendingAmountToAdmin}
+                  {salesMetrics.pendingCashToAdmin||0} Orders, ₹
+                  {salesMetrics.pendingAmountToAdmin||0}
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span>Canceled orders </span>
                 <span className="font-semibold text-red-500">
-                  {userMetrics.cancel}
+                  {userMetrics.cancel||0}
                 </span>
               </div>
             </div>
@@ -376,7 +374,7 @@ const AnalyticsDashboard = ({
                   <YAxis />
                   <Tooltip />
                   <Bar dataKey="revenue">
-                    {categoryData.map((_, index) => (
+                    {categoryData?.map((_, index) => (
                       <Cell
                         key={`cell-${index}`}
                         fill={colors[index % colors.length]}
@@ -398,7 +396,7 @@ const AnalyticsDashboard = ({
                   <YAxis />
                   <Tooltip />
                   <Bar dataKey="orders">
-                    {categoryOrder.map((_, index) => (
+                    {categoryOrder?.map((_, index) => (
                       <Cell
                         key={`cell-${index}`}
                         fill={colors[index % colors.length]}
@@ -419,13 +417,13 @@ const AnalyticsDashboard = ({
               <div className="flex justify-left items-center">
                 <span>Total products :</span>
                 <span className="font-semibold ml-4">
-                  {totalProducts.toLocaleString()}
+                  {totalProducts?.toLocaleString() || 0}
                 </span>
               </div>
               <div className="flex justify-left items-center">
                 <span>Total products quantity :</span>
                 <span className="font-semibold ml-4">
-                  {totalProductQuantity.toLocaleString()}
+                  {totalProductQuantity?.toLocaleString() || 0}
                 </span>
               </div>
             </div>

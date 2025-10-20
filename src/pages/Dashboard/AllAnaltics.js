@@ -1,4 +1,4 @@
-import  { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   AreaChart,
   Area,
@@ -23,6 +23,7 @@ import {
   ArrowRight,
   IndianRupee,
   CircleDashed,
+  PackageX,
 } from "lucide-react";
 import axios from "axios";
 import { BASE_URL } from "../Urls/Urls";
@@ -44,7 +45,6 @@ const AnalyticsDashboard = ({
   totalLowStock,
   cancledOrders,
   categoryStatus,
-
   setCurrentPage,
 }) => {
   /*Revenue trend */
@@ -100,12 +100,6 @@ const AnalyticsDashboard = ({
     fetchRevenueTrend();
   }, [selectedYear, dateRange]);
 
-
-
-
-
-
-
   // Sample analytics data
   const salesMetrics = {
     totalOrders: deliveredOrders,
@@ -130,7 +124,7 @@ const AnalyticsDashboard = ({
     return: returnedProducts || 0,
   };
 
-  // Product status data for pie chart
+  // Product status data for pie chart - Filter out zero values
   const productStatusData = [
     { name: "In Stock", value: productMetrics.totalInStock, color: "#3B82F6" },
     { name: "Low Stock", value: productMetrics.lowStock, color: "#F59E0B" },
@@ -139,14 +133,20 @@ const AnalyticsDashboard = ({
       value: productMetrics.outOfStock,
       color: "#EF4444",
     },
-  ];
+  ].filter((item) => item.value > 0);
 
-  // User activity data by type
+  // Check if product status has any data
+  const hasProductStatusData = productStatusData.length > 0;
+
+  // User activity data by type - Filter out zero values
   const userTypeData = [
     { name: "Total Orders", value: userMetrics.total, color: "#3B82F6" },
     { name: "Canceled", value: userMetrics.cancel, color: "#EF4444" },
     { name: "Returned Products", value: userMetrics.return, color: "#8B5CF6" },
-  ];
+  ].filter((item) => item.value > 0);
+
+  // Check if user activity has any data
+  const hasUserActivityData = userTypeData.length > 0;
 
   // Custom tooltip for pie charts
   const CustomTooltip = ({ active, payload }) => {
@@ -160,15 +160,31 @@ const AnalyticsDashboard = ({
     return null;
   };
 
-  const categoryData = categoryStatus.map((cat) => ({
-    name: cat.category,
-    revenue: cat.deliveredRevenue,
-  }));
+  // Empty State Component
+  const EmptyState = ({ message = "No data available" }) => (
+    <div className="h-full flex flex-col items-center justify-center text-gray-400">
+      <PackageX size={48} className="mb-2" />
+      <p className="text-sm">{message}</p>
+    </div>
+  );
 
-  const categoryOrder = categoryStatus.map((cat) => ({
-    name: cat.category,
-    orders: cat.totalOrderedProducts,
-  }));
+  const categoryData = (categoryStatus || [])
+    .map((cat) => ({
+      name: cat.category,
+      revenue: cat.deliveredRevenue || 0,
+    }))
+    .filter((cat) => cat.revenue > 0);
+
+  const categoryOrder = (categoryStatus || [])
+    .map((cat) => ({
+      name: cat.category,
+      orders: cat.totalOrderedProducts || 0,
+    }))
+    .filter((cat) => cat.orders > 0);
+
+  // Check if category data exists
+  const hasCategoryRevenueData = categoryData.length > 0;
+  const hasCategoryOrderData = categoryOrder.length > 0;
 
   const colors = [
     "#4ECDC4", // Turquoise
@@ -181,79 +197,73 @@ const AnalyticsDashboard = ({
     "#00BBF9", // Bright Blue
   ];
 
-  
-
   // Helper function to format a Date as yyyy-mm-dd
   const formatDate = (date) => date.toISOString().split("T")[0];
 
- const [shippingDateRange, setShippingDateRange] = useState({ start: "", end: "" });
-const [shippingStatusData, setShippingStatusData] = useState([]);
-const [loadingShippingStatus, setLoadingShippingStatus] = useState(false);
+  const [shippingDateRange, setShippingDateRange] = useState({
+    start: "",
+    end: "",
+  });
+  const [shippingStatusData, setShippingStatusData] = useState([]);
+  const [loadingShippingStatus, setLoadingShippingStatus] = useState(false);
 
+  useEffect(() => {
+    const fetchShippingStatus = () => {
+      setLoadingShippingStatus(true);
+      axios
+        .get(`${BASE_URL}/get-shipping-status`, { withCredentials: true })
+        .then((response) => {
+          setShippingStatusData(response.data.data);
+          setShippingDateRange(response.data.dateRange);
+        })
+        .catch((error) => {
+          console.error("Error fetching shipping status:", error);
+        })
+        .finally(() => {
+          setLoadingShippingStatus(false);
+        });
+    };
 
-useEffect(() => {
-  const fetchShippingStatus = () => {
+    fetchShippingStatus();
+  }, []);
+
+  const changeShippingDateRange = (direction) => {
+    if (!shippingDateRange.start || !shippingDateRange.end) return;
+
+    const currentStart = new Date(shippingDateRange.start);
+    const currentEnd = new Date(shippingDateRange.end);
+
+    const dayShift = 7 * 24 * 60 * 60 * 1000;
+    let newStart, newEnd;
+
+    if (direction === "prev") {
+      newStart = new Date(currentStart.getTime() - dayShift);
+      newEnd = new Date(currentEnd.getTime() - dayShift);
+    } else {
+      newStart = new Date(currentStart.getTime() + dayShift);
+      newEnd = new Date(currentEnd.getTime() + dayShift);
+    }
+
+    const newStartStr = formatDate(newStart);
+    const newEndStr = formatDate(newEnd);
+
     setLoadingShippingStatus(true);
     axios
-      .get(`${BASE_URL}/get-shipping-status`, { withCredentials: true })
+      .get(`${BASE_URL}/get-shipping-status`, {
+        params: { start: newStartStr, end: newEndStr },
+        withCredentials: true,
+      })
       .then((response) => {
         setShippingStatusData(response.data.data);
         setShippingDateRange(response.data.dateRange);
       })
       .catch((error) => {
-        console.error("Error fetching shipping status:", error);
+        console.error("Error fetching new shipping status:", error);
       })
       .finally(() => {
         setLoadingShippingStatus(false);
       });
   };
-
-  fetchShippingStatus();
-}, []);
-
-
-const changeShippingDateRange = (direction) => {
-  if (!shippingDateRange.start || !shippingDateRange.end) return;
-
-  const currentStart = new Date(shippingDateRange.start);
-  const currentEnd = new Date(shippingDateRange.end);
-
-  const dayShift = 7 * 24 * 60 * 60 * 1000;
-  let newStart, newEnd;
-
-  if (direction === "prev") {
-    newStart = new Date(currentStart.getTime() - dayShift);
-    newEnd = new Date(currentEnd.getTime() - dayShift);
-  } else {
-    newStart = new Date(currentStart.getTime() + dayShift);
-    newEnd = new Date(currentEnd.getTime() + dayShift);
-  }
-
-  const newStartStr = formatDate(newStart);
-  const newEndStr = formatDate(newEnd);
-
-  setLoadingShippingStatus(true);
-  axios
-    .get(`${BASE_URL}/get-shipping-status`, {
-      params: { start: newStartStr, end: newEndStr },
-      withCredentials: true,
-    })
-    .then((response) => {
-      setShippingStatusData(response.data.data);
-      setShippingDateRange(response.data.dateRange);
-    })
-    .catch((error) => {
-      console.error("Error fetching new shipping status:", error);
-    })
-    .finally(() => {
-      setLoadingShippingStatus(false);
-    });
-};
-
-
-
- 
-
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -285,7 +295,7 @@ const changeShippingDateRange = (direction) => {
                   <IndianRupee className="text-blue-500" size={20} />
                 </div>
                 <p className="text-2xl font-bold">
-                  ₹{salesMetrics.totalRevenue}
+                  ₹{salesMetrics.totalRevenue || 0}
                 </p>
                 <span className="text-green-500 text-sm">
                   ↑ 12.5% vs last period
@@ -296,7 +306,9 @@ const changeShippingDateRange = (direction) => {
                   <h3 className="text-gray-500 text-sm">Total Orders</h3>
                   <ShoppingBag className="text-blue-500" size={20} />
                 </div>
-                <p className="text-2xl font-bold">{salesMetrics.totalOrders}</p>
+                <p className="text-2xl font-bold">
+                  {salesMetrics.totalOrders || 0}
+                </p>
                 <span className="text-green-500 text-sm">
                   ↑ 8.2% vs last period
                 </span>
@@ -306,7 +318,7 @@ const changeShippingDateRange = (direction) => {
                   <h3 className="text-gray-500 text-sm">Pending Orders</h3>
                   <CircleDashed className="text-blue-500" size={20} />
                 </div>
-                <p className="text-2xl font-bold">{pendingOrders}</p>
+                <p className="text-2xl font-bold">{pendingOrders || 0}</p>
                 <span className="text-green-500 text-sm">
                   ↑ 15.3% vs last period
                 </span>
@@ -317,7 +329,7 @@ const changeShippingDateRange = (direction) => {
                   <Activity className="text-blue-500" size={20} />
                 </div>
                 <p className="text-2xl font-bold">
-                  {salesMetrics.conversionRate}%
+                  {salesMetrics.conversionRate || 0}%
                 </p>
                 <span className="text-red-500 text-sm">
                   ↓ 2.1% vs last period
@@ -328,56 +340,87 @@ const changeShippingDateRange = (direction) => {
         </div>
 
         {/* Product Status and User Type Distribution */}
+        {/* Product Status and User Type Distribution */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-lg font-semibold mb-4">
               Product Status Distribution
             </h2>
             <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={productStatusData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={100}
-                    paddingAngle={5}
-                    dataKey="value"
-                  >
-                    {productStatusData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip content={<CustomTooltip />} />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
+              {dataLoading ? (
+                <div className="h-full flex items-center justify-center">
+                  <div className="animate-pulse flex flex-col items-center space-y-4">
+                    <div className="w-48 h-48 rounded-full bg-gray-200"></div>
+                    <div className="flex space-x-4">
+                      <div className="w-20 h-4 bg-gray-200 rounded"></div>
+                      <div className="w-20 h-4 bg-gray-200 rounded"></div>
+                      <div className="w-20 h-4 bg-gray-200 rounded"></div>
+                    </div>
+                  </div>
+                </div>
+              ) : !hasProductStatusData ? (
+                <EmptyState message="No product data available" />
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={productStatusData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={100}
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      {productStatusData?.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip content={<CustomTooltip />} />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              )}
             </div>
           </div>
 
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-lg font-semibold mb-4">Order Activity</h2>
             <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={userTypeData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={100}
-                    paddingAngle={5}
-                    dataKey="value"
-                  >
-                    {userTypeData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip content={<CustomTooltip />} />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
+              {dataLoading ? (
+                <div className="h-full flex items-center justify-center">
+                  <div className="animate-pulse flex flex-col items-center space-y-4">
+                    <div className="w-48 h-48 rounded-full bg-gray-200"></div>
+                    <div className="flex space-x-4">
+                      <div className="w-24 h-4 bg-gray-200 rounded"></div>
+                      <div className="w-24 h-4 bg-gray-200 rounded"></div>
+                      <div className="w-24 h-4 bg-gray-200 rounded"></div>
+                    </div>
+                  </div>
+                </div>
+              ) : !hasUserActivityData ? (
+                <EmptyState message="No order activity data available" />
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={userTypeData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={100}
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      {userTypeData?.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip content={<CustomTooltip />} />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              )}
             </div>
           </div>
         </div>
@@ -415,6 +458,8 @@ const changeShippingDateRange = (direction) => {
                 <div className="h-full flex items-center justify-center">
                   <span className="text-gray-500">Loading...</span>
                 </div>
+              ) : revenueTrend.length === 0 ? (
+                <EmptyState message="No revenue data for selected period" />
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={revenueTrend}>
@@ -493,73 +538,89 @@ const changeShippingDateRange = (direction) => {
             </div>
           </div>
 
-
           {/* delivery status info  */}
 
-   <div className="bg-white rounded-lg shadow-md p-6 relative">
-  {/* Date Range Navigation */}
-  <div className="flex justify-center items-center pb-2">
-    <button
-      onClick={() => changeShippingDateRange("prev")}
-      className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-    >
-      <ArrowLeft className="h-4 w-4" />
-    </button>
-    <span className="mx-4 text-sm font-medium">
-      {shippingDateRange.start} to {shippingDateRange.end}
-    </span>
-    <button
-      onClick={() => changeShippingDateRange("next")}
-      className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-    >
-      <ArrowRight className="h-4 w-4" />
-    </button>
-  </div>
+          <div className="bg-white rounded-lg shadow-md p-6 relative">
+            {/* Date Range Navigation */}
+            <div className="flex justify-center items-center pb-2">
+              <button
+                onClick={() => changeShippingDateRange("prev")}
+                className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </button>
+              <span className="mx-4 text-sm font-medium">
+                {shippingDateRange.start} to {shippingDateRange.end}
+              </span>
+              <button
+                onClick={() => changeShippingDateRange("next")}
+                className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+              >
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
 
-  <h2 className="text-xl font-semibold mt-4 mb-6">Shipping Status Overview</h2>
+            <h2 className="text-xl font-semibold mt-4 mb-6">
+              Shipping Status Overview
+            </h2>
 
-  {loadingShippingStatus ? (
-    <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-10">
-      <span className="text-gray-700 font-semibold">Loading...</span>
-    </div>
-  ) : (
-    <div className="h-80">
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={shippingStatusData}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-          <XAxis
-            dataKey="date"
-            stroke="#6B7280"
-            fontSize={12}
-            tickLine={false}
-          />
-          <YAxis
-            stroke="#6B7280"
-            fontSize={12}
-            tickLine={false}
-            axisLine={false}
-          />
-          <Tooltip
-            contentStyle={{
-              backgroundColor: "white",
-              border: "1px solid #E5E7EB",
-              borderRadius: "0.5rem",
-              padding: "0.5rem",
-            }}
-          />
-          <Legend />
-          <Bar dataKey="pending" stackId="a" fill="#F59E0B" name="Pending" />
-          <Bar dataKey="shipped" stackId="a" fill="#3B82F6" name="Shipped" />
-          <Bar dataKey="delivered" stackId="a" fill="#10B981" name="Delivered" />
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
-  )}
-</div>
-
-
-
-
+            {loadingShippingStatus ? (
+              <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-10">
+                <span className="text-gray-700 font-semibold">Loading...</span>
+              </div>
+            ) : shippingStatusData.length === 0 ? (
+              <div className="h-80">
+                <EmptyState message="No shipping data for selected period" />
+              </div>
+            ) : (
+              <div className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={shippingStatusData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                    <XAxis
+                      dataKey="date"
+                      stroke="#6B7280"
+                      fontSize={12}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      stroke="#6B7280"
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={false}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "white",
+                        border: "1px solid #E5E7EB",
+                        borderRadius: "0.5rem",
+                        padding: "0.5rem",
+                      }}
+                    />
+                    <Legend />
+                    <Bar
+                      dataKey="pending"
+                      stackId="a"
+                      fill="#F59E0B"
+                      name="Pending"
+                    />
+                    <Bar
+                      dataKey="shipped"
+                      stackId="a"
+                      fill="#3B82F6"
+                      name="Shipped"
+                    />
+                    <Bar
+                      dataKey="delivered"
+                      stackId="a"
+                      fill="#10B981"
+                      name="Delivered"
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Category Revenue */}
@@ -567,44 +628,52 @@ const changeShippingDateRange = (direction) => {
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-lg font-semibold mb-4">Category Revenue</h2>
             <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={categoryData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="revenue">
-                    {categoryOrder.map((_, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={colors[index % colors.length]}
-                      />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+              {!hasCategoryRevenueData ? (
+                <EmptyState message="No category revenue data available" />
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={categoryData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="revenue">
+                      {categoryData?.map((_, index) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={colors[index % colors.length]}
+                        />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
             </div>
           </div>
 
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-lg font-semibold mb-4">Category Orders</h2>
             <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={categoryOrder}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="orders">
-                    {categoryOrder.map((_, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={colors[index % colors.length]}
-                      />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+              {!hasCategoryOrderData ? (
+                <EmptyState message="No category order data available" />
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={categoryOrder}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="orders">
+                      {categoryOrder.map((_, index) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={colors[index % colors.length]}
+                        />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
             </div>
           </div>
         </div>
@@ -617,25 +686,25 @@ const changeShippingDateRange = (direction) => {
               <div className="flex justify-between items-center">
                 <span>Total products ordered</span>
                 <span className="font-semibold">
-                  {salesMetrics.totalOrderedProducts.toLocaleString()}
+                  {(salesMetrics?.totalOrderedProducts || 0).toLocaleString()}
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span>In stock count</span>
                 <span className="font-semibold">
-                  {productMetrics.totalInStock.toLocaleString()}
+                  {(productMetrics?.totalInStock || 0).toLocaleString()}
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span>Low stock count</span>
                 <span className="font-semibold">
-                  {productMetrics.lowStock.toLocaleString()}
+                  {(productMetrics?.lowStock || 0).toLocaleString()}
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span>Out of stock count</span>
                 <span className="font-semibold text-red-500">
-                  {productMetrics.outOfStock.toLocaleString()}
+                  {(productMetrics?.outOfStock || 0).toLocaleString()}
                 </span>
               </div>
             </div>
@@ -647,25 +716,25 @@ const changeShippingDateRange = (direction) => {
               <div className="flex justify-between items-center">
                 <span>Total orders </span>
                 <span className="font-semibold">
-                  {salesMetrics.totalOrders}
+                  {salesMetrics?.totalOrders || 0}
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span>Reruned products </span>
-                <span className="font-semibold">{returnedProducts}</span>
+                <span className="font-semibold">{returnedProducts || 0}</span>
               </div>
 
               <div className="flex justify-between items-center">
                 <span>Pending cash to admin </span>
                 <span className="font-semibold text-red-500">
-                  {salesMetrics.pendingCashToAdmin} Orders, ₹
-                  {salesMetrics.pendingAmountToAdmin}
+                  {salesMetrics?.pendingCashToAdmin || 0} Orders, ₹
+                  {salesMetrics.pendingAmountToAdmin || 0}
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span>Canceled orders </span>
                 <span className="font-semibold text-red-500">
-                  {userMetrics.cancel}
+                  {userMetrics.cancel || 0}
                 </span>
               </div>
               <div className="mt-4 flex justify-end">
@@ -680,22 +749,27 @@ const changeShippingDateRange = (direction) => {
           </div>
         </div>
 
-     
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Best Performing Categories */}
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-lg font-semibold mb-4">Best Categories</h2>
-            <ul className="space-y-2">
-              {[...categoryData]
-                .sort((a, b) => b.revenue - a.revenue)
-                .slice(0, 5)
-                .map((cat, index) => (
-                  <li key={index} className="flex justify-between">
-                    <span>{cat.name}</span>
-                    <span className="font-semibold">₹{cat.revenue}</span>
-                  </li>
-                ))}
-            </ul>
+            {categoryData.length === 0 ? (
+              <div className="py-8">
+                <EmptyState message="No category data available" />
+              </div>
+            ) : (
+              <ul className="space-y-2">
+                {[...categoryData]
+                  .sort((a, b) => b.revenue - a.revenue)
+                  .slice(0, 5)
+                  .map((cat, index) => (
+                    <li key={index} className="flex justify-between">
+                      <span>{cat.name}</span>
+                      <span className="font-semibold">₹{cat.revenue}</span>
+                    </li>
+                  ))}
+              </ul>
+            )}
           </div>
 
           <div className="bg-white rounded-lg shadow p-6">
@@ -704,7 +778,7 @@ const changeShippingDateRange = (direction) => {
               <div className="flex justify-between items-center">
                 <span>Total Revenue </span>
                 <span className="font-semibold">
-                  ₹{salesMetrics.totalRevenue}
+                  ₹{salesMetrics.totalRevenue || 0}
                 </span>
               </div>
               <div className="flex justify-between items-center">
@@ -716,13 +790,13 @@ const changeShippingDateRange = (direction) => {
               <div className="flex justify-between items-center">
                 <span>Average Order Value</span>
                 <span className="font-semibold">
-                  ₹{salesMetrics.averageOrderValue}
+                  ₹{salesMetrics.averageOrderValue || 0}
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span>Conversion Rate</span>
                 <span className="font-semibold">
-                  {salesMetrics.conversionRate}%
+                  {salesMetrics.conversionRate || 0}%
                 </span>
               </div>
               <div className="mt-4 flex justify-end">
