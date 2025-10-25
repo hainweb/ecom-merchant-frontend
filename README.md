@@ -1,70 +1,81 @@
-# Getting Started with Create React App
+# Merchant Frontend | Multi-Role E-Commerce Platform
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This is the **Merchant Panel Frontend** of the Multi-Role E-Commerce Platform.  
+Approved merchants can **manage products**, **track orders**, **analyze performance**, and handle **authentication** through a secure, responsive dashboard.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## Features
 
-### `npm start`
+### Authentication
+- Merchant **login** and **logout**
+- **Forgot password** flow with OTP verification and reset
+- **Send OTP** and **verify merchant** during registration
+- **Mark intro seen** (for skipping tutorial after first login)
+- Auto-session handling via JWT (integrated with backend)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Product Management
+- **Add, edit, delete, and view** products
+- **Upload images** using Multer (via backend API)
+- **Filter and sort** products dynamically
+- **View all products** and merchant-specific listings
+- Real-time **stock and price tracking**
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Orders & Analytics
+- View **order history** and status updates
+- Track **total revenue** and **revenue trends**
+- Analyze **products by category**
+- Monitor **shipping status analytics**
 
-### `npm test`
+### UI / UX
+- Responsive dashboard built with **TailwindCSS**
+- Interactive charts using **Recharts**
+- Toast and modal notifications for user feedback
+- Intuitive navigation with **React Router DOM**
+- Protected routes for authenticated merchants
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+---
 
-### `npm run build`
+## Tech Stack
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+| Layer | Technology |
+|-------|-------------|
+| **Frontend** | React.js, TailwindCSS, Axios, React Router DOM |
+| **Charts & Data Viz** | Recharts |
+| **Authentication** | Express-session (handled via backend) |
+| **File Upload** | Multer (server-side integration) |
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+---
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Environment Variables
 
-### `npm run eject`
+Create a `.env` file in the **root directory** of the project with the following variables:
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+```env
+# Base URL of your backend API
+# Use full URL in development (e.g., localhost), and '/api' in production
+# Example for development:
+REACT_APP_BASE_URL=http://localhost:7000/admin
+# Example for production:
+# REACT_APP_BASE_URL=/api
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+---
 
-## Learn More
+## Setup Instructions
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```bash
+# Clone the repository
+git clone https://github.com/hainweb/ecom-merchant-frontend.git
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+# Navigate to project directory
+cd ecom-merchant-frontend
 
-### Code Splitting
+# Install dependencies
+npm install
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+# Start the development server
+npm start
 
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
